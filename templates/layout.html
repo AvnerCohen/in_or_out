@@ -1,0 +1,19 @@
+<!doctype html>
+<body>
+  <title>In or Out?</title>
+  <meta charset='utf-8'>
+  <link rel='stylesheet' type='text/css' href='//cdnjs.cloudflare.com/ajax/libs/materialize/0.97.5/css/materialize.min.css'>
+  <link rel='stylesheet' type='text/css' href='{{ url_for('static', filename='in_or_out.css') }}'>
+  <link rel='shortcut icon' href='{{ url_for('static', filename='favicon.ico') }}'>
+</body>
+  <div class='row'>
+    <div class='col s12 m9'>
+      <h1 class='header center-on-small-only'><span>Teams</span></h1>
+    </div>
+  </div>
+
+  {% block body %}{% endblock %}
+
+<script async='async' src='{{ url_for('static', filename='in_or_out.js') }}'></script>
+<script async='async' src='//cdnjs.cloudflare.com/ajax/libs/fetch/0.11.0/fetch.js'></script>
+</div>
