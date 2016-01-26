@@ -7,12 +7,17 @@ window.onload = function onload(){
 };
 
 
-
 function manageClickOnCard(evt) {
+  evt.stopPropagation();
   var teamAbbr = evt.srcElement.dataset.team;
   fetch('/in_or_out.json?team=' + teamAbbr).then(function(response) {
     return response.json();
   }).then(function(results) {
-    alert('Current Position is: ' + results.currentPosition);
+    if (results.error) { 
+      alert(results.error);
+    } else {
+      alert('Current Position is: ' + results.currentPosition);
+    }
   });
 }
+

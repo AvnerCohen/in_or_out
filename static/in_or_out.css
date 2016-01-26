@@ -5,6 +5,7 @@
 .cards-container .card {
   display: inline-block;
   overflow: visible;
+  width: 200px;
 }
 
 .card .card-title {

@@ -4,13 +4,21 @@
   <div class="col s12 cards-container">
 
   {% for team in teams %}
+  {% set team_pos = team_with_positions[team.teamId] %}
   <div class="card">
     <div class="card-content white-text text-center ">
-      <img src='//i.cdn.turner.com/nba/nba/.element/img/1.0/logos/teamlogos_80x64/{{team.abbreviation.lower()}}.gif'>
+      <img src='{{image_for_team(team.abbreviation)}}'>
     </div>
     <div class="card-title text-center blue-grey-text darken-1">{{team.teamName}}</div>
+    <div class="card-title text-center blue-grey-text darken-1">Pos: {{team_pos.currentPosition}} ({{team_pos.conference}})</div>
+    {% if team_pos.currentPosition > 8 %}
+    <div class="card-title text-center blue-grey-text darken-1">Currently: <span class='deep-orange-text'>OUT</span></div>
+    {% else %}
+    <div class="card-title text-center blue-grey-text darken-1">Currently: <span class='green-text darken-4'>In</span></div>
+    {% endif %}
+    
     <div class="card-action">
-      <a href='#' class='js-makes-it' data-team="{{team.abbreviation}}">Makes it?</a>
+      <a href='#' class='btn js-makes-it' data-team="{{team.abbreviation}}">Makes it?</a>
     </div>
   </div>
   {% endfor %}
