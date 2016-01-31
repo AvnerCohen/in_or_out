@@ -9,28 +9,38 @@ app = Flask(__name__)
 client = MongoClient('localhost', 27017)
 
 
+##minor optimization keep the last teams data for future needs
+TEAM_DATA = {}
+
+
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
-                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
+                               'favicon.ico',
+                               mimetype='image/vnd.microsoft.icon')
+
+
+@app.before_request
+def print_route():
+    print(request.url_rule)
 
 
 @app.route('/')
 def teams():
     teams = client['nba_stats']['teams'].find()
     team_with_positions = nba_api.score_board()
-    return render_template('teams.html', teams=teams, team_with_positions=team_with_positions)
+    TEAM_DATA['teams'] = teams
+    TEAM_DATA['team_with_positions'] = team_with_positions
+
+    return render_template('teams.html', teams=teams,
+                           team_with_positions=team_with_positions)
 
 
 @app.route('/in_or_out.json')
 def in_or_out():
     team_arg = request.args.get('team')
     team = client['nba_stats']['teams'].find_one({"_id": team_arg})
-    team_id = team['teamId']
-    query_results = nba_api.query_api(team_id)
-    if not query_results.get('error', False):
-        current_position = nba_api.position_from_results(query_results)
-        query_results = {"currentPosition": current_position}
+    query_results = nba_api.data_for_upcomings(client, team)
 
     return jsonify(query_results)
 

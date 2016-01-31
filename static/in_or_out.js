@@ -9,6 +9,8 @@ window.onload = function onload(){
 
 function manageClickOnCard(evt) {
   evt.stopPropagation();
+  evt.returnValue = false;
+
   var teamAbbr = evt.srcElement.dataset.team;
   fetch('/in_or_out.json?team=' + teamAbbr).then(function(response) {
     return response.json();
@@ -16,7 +18,7 @@ function manageClickOnCard(evt) {
     if (results.error) { 
       alert(results.error);
     } else {
-      alert('Current Position is: ' + results.currentPosition);
+      alert(JSON.stringify(results));
     }
   });
 }
