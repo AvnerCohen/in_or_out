@@ -1,6 +1,7 @@
 import requests
 import json
 import datetime
+import memoizer
 
 # base_team_data_url = 'http://stats.nba.com/stats/teaminfocommon'
 # payload_for_team_data = {"LeagueID": '00', "SeasonType": "Regular Season",
@@ -37,10 +38,13 @@ def data_for_upcomings(mongo_client, team_data):
             {"date_as_int": {"$gt": today_date_as_int - 1}}
             ]}
 
-    print(query)
-    games_left = mongo_client['nba_stats']['schedule'].find(query).count()
-
-    return {"date": today_date_as_int, "games_left": games_left}
+    games_left = mongo_client['nba_stats']['schedule'].find(query)
+    total_strength_score = 0
+    for index, game in enumerate(games_left):
+        other_side_id = game['team_home_id'] if game['team_visit_id'] == team_data['teamId'] else game['team_visit_id']
+        total_strength_score += memoizer.team_data_dict['team_with_positions'][other_side_id]['currentPosition']
+    return {"date": today_date_as_int, "games_left": games_left.count(),
+            "total_strength_score": total_strength_score}
 
 
 def score_board():

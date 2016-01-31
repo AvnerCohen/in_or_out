@@ -1,16 +1,14 @@
+
 import os
 from flask import Flask, request, render_template, jsonify, send_from_directory
 from pymongo import MongoClient
 
 from models import nba_api
+from models import memoizer
 
 app = Flask(__name__)
 
 client = MongoClient('localhost', 27017)
-
-
-##minor optimization keep the last teams data for future needs
-TEAM_DATA = {}
 
 
 @app.route('/favicon.ico')
@@ -29,8 +27,8 @@ def print_route():
 def teams():
     teams = client['nba_stats']['teams'].find()
     team_with_positions = nba_api.score_board()
-    TEAM_DATA['teams'] = teams
-    TEAM_DATA['team_with_positions'] = team_with_positions
+    memoizer.team_data_dict['teams'] = teams
+    memoizer.team_data_dict['team_with_positions'] = team_with_positions
 
     return render_template('teams.html', teams=teams,
                            team_with_positions=team_with_positions)
