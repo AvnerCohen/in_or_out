@@ -38,9 +38,18 @@ def teams():
 def in_or_out():
     team_arg = request.args.get('team')
     team = client['nba_stats']['teams'].find_one({"_id": team_arg})
-    query_results = nba_api.data_for_upcomings(client, team)
+    query_results = nba_api.data_for_upcomings(client, [team])
 
-    return jsonify(query_results)
+    return jsonify(query_results[team_arg])
+
+
+@app.route('/upcoming_games_for_teams.json')
+def upcoming_games_for_teams():
+    teams_arg = request.args.get('teams').split(',')
+    teams_data = client['nba_stats']['teams'].find({"_id": {"$in": teams_arg}})
+
+    upcoming_games = nba_api.data_for_upcomings(client, teams_data)
+    return jsonify(upcoming_games)
 
 
 @app.context_processor
