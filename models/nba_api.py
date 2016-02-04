@@ -1,6 +1,7 @@
+
 import requests
 import json
-import datetime
+from datetime import datetime, timedelta
 import memoizer
 
 base_score_board_url = 'http://stats.nba.com/stats/scoreboardV2'
@@ -10,7 +11,7 @@ headers = {'User-Agent': 'InOrOut/AppleWebKit (KHTML, like Gecko) Chrome'}
 
 
 def data_for_upcomings(mongo_client, teams_data):
-    today_date_as_int = int(datetime.date.today().strftime('%Y%m%d'))
+    today_date_as_int = int((datetime.now() - timedelta(days=2)).strftime('%Y%m%d'))
     results = {}
     for team_data in teams_data:
         team_id = team_data['teamId']
@@ -57,7 +58,7 @@ def data_for_upcomings(mongo_client, teams_data):
 
 
 def score_board():
-    payload_for_board['gameDate'] = datetime.date.today().strftime('%m/%d/%Y')
+    payload_for_board['gameDate'] = datetime.today().strftime('%m/%d/%Y')
 
     results = requests.get(base_score_board_url, headers=headers,
                            params=payload_for_board)
