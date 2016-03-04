@@ -4,22 +4,21 @@ import json
 from datetime import datetime, timedelta
 import memoizer
 
-base_score_board_url = 'http://stats.nba.com/stats/scoreboardV2'
+base_score_board_url = 'https://erikberg.com/nba/standings.json'
 payload_for_board = {'LeagueID': '00', 'DayOffset': '0', 'gameDate': None}
 
-headers = {'User-Agent': 'InOrOut/AppleWebKit (KHTML, like Gecko) Chrome'}
+headers = {'User-Agent': 'Aramadilo/AppleWebKit (KHTML, like Gecko) Chrome'}
 
 
 def data_for_upcomings(mongo_client, teams_data):
     today_date_as_int = int((datetime.now() - timedelta(days=2)).strftime('%Y%m%d'))
     results = {}
     for team_data in teams_data:
-        team_id = team_data['teamId']
+        team_id = team_data['abbreviation']
         query = {'$and': [
-                {'$or': [{'team_home_id': team_id}, {'team_visit_id': team_id}]},
+                {'$or': [{'team_home': team_id}, {'team_visit': team_id}]},
                 {'date_as_int': {'$gt': today_date_as_int - 1}}
                 ]}
-
         games_left = mongo_client['nba_stats']['schedule'].find(query).sort('date_as_int', 1)
         total_strength_score = 0
         this_team_pos = memoizer.team_data_dict['team_with_positions'][team_id]['currentPosition']
@@ -29,7 +28,7 @@ def data_for_upcomings(mongo_client, teams_data):
         vs_whom = []
         wins = 0
         for index, game in enumerate(games_left):
-            other_side_id = game['team_home_id'] if game['team_visit_id'] == team_data['teamId'] else game['team_visit_id']
+            other_side_id = game['team_home'] if game['team_visit'] == team_data['abbreviation'] else game['team_visit']
             other_side = memoizer.team_data_dict['team_with_positions'][other_side_id]
             total_strength_score += other_side['currentPosition']
             game_dates.append(game['date'])
@@ -59,29 +58,23 @@ def data_for_upcomings(mongo_client, teams_data):
 
 def score_board():
     payload_for_board['gameDate'] = datetime.today().strftime('%m/%d/%Y')
-
     results = requests.get(base_score_board_url, headers=headers,
                            params=payload_for_board)
     if results.status_code != 200:
-        return json.dumps({'error': 'Failed to query data.'})
+        return json.dumps({'error': 'Failed to query data. : ' + str(results.status_code)})
     else:
         team_position = manage_score_board_results(json.loads(results.text))
         return team_position
 
 
 def manage_score_board_results(results):
-    east_results = results['resultSets'][4]['rowSet']
-    west_results = results['resultSets'][5]['rowSet']
+    results = results['standing']
     data = {}
-    for pos, team in enumerate(east_results):
-        data[team[0]] = {'name': team[5], 'currentPosition': pos + 1,
-                         'conference': team[4], 'home_record': team[10],
-                         'away_record': team[11]}
 
-    for pos, team in enumerate(west_results):
-        data[team[0]] = {'name': team[5], 'currentPosition': pos + 1,
-                         'conference': team[4], 'home_record': team[10],
-                         'away_record': team[11]}
+    for pos, team in enumerate(results):
+        key = memoizer.NAMES_MAP[team['last_name']]
+        data[key] = {'name': team['last_name'], 'currentPosition': team['rank']}
+
     return data
 
 #__END__

@@ -29,7 +29,6 @@ def teams():
     team_with_positions = nba_api.score_board()
     memoizer.team_data_dict['teams'] = teams
     memoizer.team_data_dict['team_with_positions'] = team_with_positions
-
     return render_template('teams.html', teams=teams,
                            team_with_positions=team_with_positions)
 
@@ -47,7 +46,6 @@ def in_or_out():
 def upcoming_games_for_teams():
     teams_arg = request.args.get('teams').split(',')
     teams_data = client['nba_stats']['teams'].find({"_id": {"$in": teams_arg}})
-
     upcoming_games = nba_api.data_for_upcomings(client, teams_data)
     return jsonify(upcoming_games)
 

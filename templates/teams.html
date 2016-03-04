@@ -4,13 +4,13 @@
   <div class="col s12 cards-container">
 
   {% for team in teams %}
-  {% set team_pos = team_with_positions[team.teamId] %}
+  {% set team_pos = team_with_positions[team.abbreviation] %}
   <div class="card">
     <div class="card-content white-text text-center ">
       <img src='{{image_for_team(team.abbreviation)}}'>
     </div>
     <div class="card-title text-center blue-grey-text darken-1">{{team.teamName}}</div>
-    <div class="card-title text-center blue-grey-text darken-1">Pos: {{team_pos.currentPosition}} ({{team_pos.conference}})</div>
+    <div class="card-title text-center blue-grey-text darken-1">Pos: {{team_pos.currentPosition}}</div>
     {% if team_pos.currentPosition > 8 %}
     <div class="card-title text-center blue-grey-text darken-1">Currently: <span class='deep-orange-text'>OUT</span></div>
     {% else %}
